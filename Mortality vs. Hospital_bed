@@ -1,0 +1,57 @@
+#Obtaining data from source to generate COVID table stored in [covid]:
+import requests
+import pandas as pd
+import json
+import numpy as np
+req=requests.get("https://api.covid19api.com/live/country/united-states").json ()
+covid=pd.DataFrame(req)
+
+covid.info()
+covid.describe()
+
+#importing seaborn to graph reported and confirmed deaths:
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.set_theme(style="ticks")
+fig=sns.relplot(data=covid,x="Lon", y="Lat", hue="Deaths", size="Confirmed",
+                sizes=(40, 400))
+
+#obtaining data from "communitybenefitinsight" to generate hospitals with reported COVID cases, and storing this in [hospitals]
+req=requests.get("https://www.communitybenefitinsight.org/api/get_hospitals.php").json()
+hospitals=pd.DataFrame(req)
+#to see the first few lines:
+hospitals.head()
+
+#Adding a column with county and state called [state_county]. 
+hospitals['state_county']=hospitals['state']+'_'+hospitals['county']
+#to see the first few lines:
+hospitals.head()
+
+#Creating a dictionary with state_ID and hospital_bed_count
+HospitalInfoPerCounty=hospitals.groupby(['state_county'], as_index=False)['hospital_bed_count'].agg('sum')
+#to see the first few lines:
+HospitalInfoPerCounty.head()
+
+import requests
+import pandas as pd
+import json
+import numpy as np
+req=requests.get("https://webhooks.mongodb-stitch.com/api/client/v2.0/app/covid-19-qppza/service/REST-API/incoming_webhook/us_only?min_date=2021-01-15T00:00:00.000Z&max_date=2021-01-15T00:00:00.000Z").json()
+covid=pd.DataFrame(req)
+
+#adding state_county column in COVID data
+covid['state_county']=covid['state']+'_'+covid['county']
+
+#creating COVIDPerCounty including mortality and COVIDPerCounty
+CovidPerCounty['mortality']=CovidPerCounty['deaths']/CovidPerCounty['confirmed']
+CovidPerCounty.head(5)
+
+#creating a graph where mortality vs. hospital bed obtained from the above table (CovidPerCounty):
+import matplotlib.pyplot as plt
+data = ['Hospital_Covid_PerCounty']
+sns.set_theme(style="ticks")
+figure = sns.relplot (
+            x = data ['mortality'],
+            y = data ['hospital_bed_count']
+) .set_title ("Mortality per hospital_bed_count")
